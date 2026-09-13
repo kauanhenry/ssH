@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Eu + Você! 💕</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        roseGold: '#B76E79',
+                        softPink: '#FFF0F5',
+                        deepBurgundy: '#4A0E17',
+                        romanticRed: '#E63946',
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif'],
+                        cursive: ['Dancing Script', 'cursive'],
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 3s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'float': 'float 6s ease-in-out infinite',
+                        'bounce-subtle': 'bounceSubtle 2s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0px)' },
+                            '50%': { transform: 'translateY(-12px)' },
+                        },
+                        bounceSubtle: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-5px)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 35%, #4c0519 70%, #0f172a 100%);
+            background-attachment: fixed;
+            color: #f8fafc;
+            overflow-x: hidden;
+        }
+
+        .glass-card {
+            background: rgba(255, 255, 255, 0.07);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.12);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.37);
+        }
+
+        .glass-card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .glass-card-hover:hover {
+            transform: translateY(-8px) scale(1.02);
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(244, 114, 182, 0.4);
+            box-shadow: 0 25px 50px -12px rgba(225, 29, 72, 0.3);
+        }
+
+        #heartCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #f43f5e;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #fb7185;
+        }
+
+        .equalizer-bar {
+            animation: bounceBar 1.2s ease-in-out infinite alternate;
+        }
+        .equalizer-bar:nth-child(2) { animation-delay: 0.2s; }
+        .equalizer-bar:nth-child(3) { animation-delay: 0.4s; }
+        .equalizer-bar:nth-child(4) { animation-delay: 0.6s; }
+
+        @keyframes bounceBar {
+            0% { height: 4px; }
+            100% { height: 24px; }
+        }
+    </style>
+</head>
+<body class="min-h-screen relative font-sans text-slate-100 antialiased selection:bg-rose-500 selection:text-white">
+
+<!-- Audio Element -->
+<audio id="bg-music" loop src="dias-de-luta-dias-de-gloria.mp3"></audio>
+
+<!-- Canvas para Partículas de Coração -->
+<canvas id="heartCanvas"></canvas>
+
+<!-- Content Container Principal -->
+<div class="relative z-10 flex flex-col min-h-screen">
+
+    <header class="w-full py-6 px-4 sm:px-8 flex justify-between items-center max-w-6xl mx-auto border-b border-white/10">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 rounded-full bg-rose-500/20 border border-rose-400/40 flex items-center justify-center text-rose-400 text-xl shadow-lg shadow-rose-500/20 animate-pulse">
+                <i class="fa-solid fa-heart text-rose-500"></i>
+            </div>
+            <span class="font-cursive text-2xl sm:text-3xl text-rose-300 font-bold tracking-wide">Nosso Amor</span>
+        </div>
+
+        <button onclick="openDateModal()" class="px-4 py-2 rounded-full glass-card text-xs sm:text-sm font-medium text-rose-200 hover:text-white hover:bg-rose-500/30 transition-all flex items-center gap-2 border border-rose-500/30">
+            <i class="fa-solid fa-calendar-heart text-rose-400"></i>
+            <span id="headerDateLabel">Ajustar Data</span>
+        </button>
+    </header>
+
+    <main class="flex-grow max-w-6xl mx-auto w-full px-4 sm:px-6 py-8 space-y-16">
+
+        <!-- Hero Section -->
+        <section class="text-center space-y-6 pt-4 sm:pt-8">
+            <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full glass-card text-rose-300 text-xs sm:text-sm font-medium border border-rose-500/30 animate-float">
+                <i class="fa-solid fa-sparkles text-amber-300"></i>
+                <span>Um presente especial feito com todo meu amor</span>
+            </div>
+
+            <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-rose-200 via-pink-300 to-rose-400 drop-shadow-sm leading-tight">
+                Para o Amor da Minha Vida <br>
+                <span class="font-cursive text-5xl sm:text-7xl md:text-8xl text-rose-400 font-normal">Minha Princesa 💕</span>
+            </h1>
+
+            <p class="max-w-2xl mx-auto text-slate-300 text-base sm:text-lg font-light leading-relaxed">
+                Cada segundo ao seu lado é uma bênção. Criei este cantinho especial para guardar nossas memórias, motivos do meu amor e celebrar nossa história incrível. Ressaltando você, hoje e sempre!
+            </p>
+
+            <!-- Contador de Tempo Em Tempo Real -->
+            <div class="pt-6">
+                <p class="text-xs sm:text-sm uppercase tracking-widest text-rose-300/80 font-semibold mb-4">
+                    Estamos juntos construindo nossa história há:
+                </p>
+
+                <div id="timerContainer" class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 max-w-3xl mx-auto">
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center border border-rose-500/20">
+                        <span id="days" class="text-3xl sm:text-5xl font-black text-white font-mono tracking-tight">000</span>
+                        <span class="text-xs sm:text-sm text-rose-300/90 font-medium mt-1 uppercase tracking-wider">Dias</span>
+                    </div>
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center border border-rose-500/20">
+                        <span id="hours" class="text-3xl sm:text-5xl font-black text-rose-200 font-mono tracking-tight">00</span>
+                        <span class="text-xs sm:text-sm text-rose-300/90 font-medium mt-1 uppercase tracking-wider">Horas</span>
+                    </div>
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center border border-rose-500/20">
+                        <span id="minutes" class="text-3xl sm:text-5xl font-black text-rose-300 font-mono tracking-tight">00</span>
+                        <span class="text-xs sm:text-sm text-rose-300/90 font-medium mt-1 uppercase tracking-wider">Minutos</span>
+                    </div>
+                    <div class="glass-card p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center border border-rose-500/20">
+                        <span id="seconds" class="text-3xl sm:text-5xl font-black text-rose-400 font-mono tracking-tight animate-pulse">00</span>
+                        <span class="text-xs sm:text-sm text-rose-300/90 font-medium mt-1 uppercase tracking-wider">Segundos</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Player de Música & Trecho Especial -->
+        <section class="max-w-3xl mx-auto space-y-6">
+            <div class="glass-card p-5 sm:p-6 rounded-3xl border border-rose-500/30 flex flex-col sm:flex-row items-center gap-5 shadow-2xl relative overflow-hidden group">
+                <div class="absolute -right-10 -bottom-10 w-40 h-40 bg-rose-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <div class="relative shrink-0">
+                    <img id="albumArt" src="cbjr.png"
+                         alt="Nossa Trilha" class="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl object-cover shadow-lg border border-white/20 transition-transform duration-700 group-hover:scale-105">
+                    <div class="absolute inset-0 rounded-2xl bg-black/20 flex items-center justify-center">
+                        <i id="musicIcon" class="fa-solid fa-music text-rose-300 text-xl animate-bounce"></i>
+                    </div>
+                </div>
+
+                <div class="flex-grow text-center sm:text-left space-y-2 w-full">
+                    <div class="flex items-center justify-center sm:justify-start gap-2">
+                        <span class="text-xs uppercase tracking-widest text-rose-400 font-semibold">Nossa Trilha Sonora</span>
+                        <span class="flex items-end gap-1 h-4 px-1" id="equalizer">
+                            <span class="w-1 bg-rose-400 rounded-full equalizer-bar h-2"></span>
+                            <span class="w-1 bg-rose-400 rounded-full equalizer-bar h-4"></span>
+                            <span class="w-1 bg-rose-400 rounded-full equalizer-bar h-1"></span>
+                            <span class="w-1 bg-rose-400 rounded-full equalizer-bar h-3"></span>
+                        </span>
+                    </div>
+                    <h3 class="text-lg font-bold text-white tracking-wide" id="songTitle">Dias de Luta, Dias de Glória</h3>
+                    <p class="text-xs text-rose-300" id="artistName">Charlie Brown Jr.</p>
+
+                    <div class="pt-2 flex items-center gap-3">
+                        <button id="playBtn" onclick="togglePlayMusic()" class="w-10 h-10 rounded-full bg-gradient-to-r from-rose-500 to-pink-500 text-white flex items-center justify-center shadow-lg hover:opacity-90 transition transform active:scale-95">
+                            <i id="playIcon" class="fa-solid fa-play text-sm ml-0.5"></i>
+                        </button>
+                        <div class="flex-grow bg-white/10 rounded-full h-2 overflow-hidden cursor-pointer">
+                            <div id="musicProgressBar" class="bg-gradient-to-r from-rose-400 to-pink-400 h-full w-0 rounded-full transition-all duration-300"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Trecho da Música -->
+            <div class="glass-card p-6 sm:p-8 rounded-3xl border border-rose-500/20 text-center space-y-4">
+                <i class="fa-solid fa-quote-left text-2xl text-rose-400/50"></i>
+                <p class="text-base sm:text-lg font-serif italic text-rose-100 leading-relaxed max-w-2xl mx-auto">
+                    "Ô, minha gata, morada dos meus sonhos<br>
+                    Todo dia, se eu pudesse, eu ia estar com você<br>
+                    Eu já te via muito antes nos meus sonhos<br>
+                    Eu procurei a vida inteira por alguém como você<br>
+                    Por isso eu canto minha vida com orgulho<br>
+                    Com melodia, alegria e barulho<br>
+                    Eu sou feliz e rodo pelo mundo<br>
+                    Sou correria, mas também sou vagabundo<br>
+                    Mas hoje dou valor de verdade<br>
+                    Pra minha saúde e pra minha liberdade<br>
+                    Que bom te encontrar nessa cidade<br>
+                    Esse brilho intenso me lembra você"
+                </p>
+                <div class="text-xs text-rose-300/70 uppercase tracking-widest font-semibold pt-2">
+                    — Charlie Brown Jr.
+                </div>
+            </div>
+        </section>
+
+        <!-- Razões Pelas Quais Eu Te Amo -->
+        <section class="space-y-6">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-200 to-pink-300">
+                    Razões Pelas Quais Eu Te Amo
+                </h2>
+                <p class="text-slate-400 text-sm">Clique no botão abaixo para descobrir um novo motivo especial!</p>
+            </div>
+
+            <div class="max-w-2xl mx-auto">
+                <div id="reasonCard" class="glass-card p-8 sm:p-10 rounded-3xl border border-rose-500/30 text-center space-y-6 relative overflow-hidden transition-all duration-500 transform">
+                    <p id="reasonText" class="text-xl sm:text-2xl font-medium text-rose-100 leading-relaxed min-h-[90px] flex items-center justify-center italic px-6">
+                        "Amo o jeito como o seu sorriso ilumina qualquer dia cinzento e como o seu abraço é o meu lugar favorito no mundo."
+                    </p>
+
+                    <div class="pt-2 flex justify-center">
+                        <button onclick="generateNewReason()" class="px-6 py-3 rounded-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 hover:from-rose-600 hover:to-pink-600 text-white font-semibold text-sm shadow-xl shadow-rose-500/25 transition-all transform hover:scale-105 active:scale-95 flex items-center gap-2">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                            <span>Gerar Outro Motivo</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Galeria -->
+        <section class="space-y-8" id="galeria">
+            <div class="text-center space-y-2">
+                <h2 class="text-3xl sm:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-rose-200 to-pink-300">
+                    Nossa Galeria de Memórias 📸
+                </h2>
+                <p class="text-slate-400 text-sm">Momentos inesquecíveis que guardo com todo carinho</p>
+            </div>
+
+            <div class="flex flex-wrap justify-center gap-2 sm:gap-3" id="tagsContainer"></div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="cardsGrid"></div>
+        </section>
+
+        <!-- Carta de Amor -->
+        <section class="max-w-3xl mx-auto pt-6">
+            <div class="glass-card p-8 sm:p-12 rounded-3xl border border-rose-500/30 relative overflow-hidden shadow-2xl">
+                <div class="space-y-6 relative z-10">
+                    <div class="flex items-center justify-between border-b border-white/10 pb-4">
+                        <span class="text-xs uppercase tracking-widest text-rose-300 font-semibold">Uma Carta Para Você</span>
+                        <i class="fa-solid fa-envelope-open-text text-rose-400 text-2xl"></i>
+                    </div>
+
+                    <div class="space-y-4 font-cursive text-2xl sm:text-3xl text-rose-100 leading-relaxed">
+                        <p>Meu amor,</p>
+                        <p>
+                            Se eu pudesse escolher mil vezes, escolheria você em todas elas. Você trouxe uma cor diferente para a minha vida, me ensinou o verdadeiro significado de companheirismo e transforma os dias comuns em momentos mágicos.
+                        </p>
+                        <p>
+                            Obrigado por ser minha melhor amiga, minha confidente e o amor da minha vida. Que este seja apenas o começo de uma eternidade bem grudadinhos!
+                        </p>
+                    </div>
+
+                    <div class="pt-6 border-t border-white/10 flex justify-between items-end">
+                        <div>
+                            <p class="text-xs text-slate-400">Com todo o meu amor,</p>
+                            <p class="font-cursive text-3xl text-rose-400 font-bold mt-1" id="signatureText">Kauan Henry ❤️</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <footer class="w-full py-8 text-center text-xs text-slate-400 border-t border-white/10 mt-16">
+        <p class="flex items-center justify-center gap-1">
+            Feito com <i class="fa-solid fa-heart text-rose-500 animate-pulse"></i> e muito carinho para você.
+        </p>
+    </footer>
+
+</div>
+
+<!-- Modal Data -->
+<div id="dateModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+    <div class="glass-card max-w-md w-full p-6 sm:p-8 rounded-3xl border border-rose-500/40 space-y-6">
+        <div class="flex justify-between items-center border-b border-white/10 pb-3">
+            <h3 class="text-lg font-bold text-rose-200">Data Especial do Início</h3>
+            <button onclick="closeDateModal()" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-xl"></i></button>
+        </div>
+
+        <div class="space-y-4">
+            <div>
+                <label class="block text-xs text-rose-300 mb-1">Data e Hora:</label>
+                <input type="datetime-local" id="startDateInput" class="w-full bg-slate-900/80 border border-rose-500/30 rounded-xl px-4 py-2.5 text-white focus:outline-none focus:border-rose-400 text-sm">
+            </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+            <button onclick="saveStartDate()" class="w-full py-2.5 rounded-xl bg-rose-500 hover:bg-rose-600 text-white font-medium text-sm transition shadow-lg">Salvar Data</button>
+            <button onclick="closeDateModal()" class="w-full py-2.5 rounded-xl glass-card hover:bg-white/10 text-slate-300 text-sm transition">Cancelar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Modal Imagem -->
+<div id="imageModal" class="fixed inset-0 bg-black/90 backdrop-blur-md z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300" onclick="closeImageModal()">
+    <div class="max-w-3xl w-full glass-card p-4 rounded-3xl border border-white/20 space-y-4 relative" onclick="event.stopPropagation()">
+        <button onclick="closeImageModal()" class="absolute top-4 right-4 w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center z-10 hover:bg-rose-500 transition">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+        <img id="modalImg" src="" alt="Ampliada" class="w-full max-h-[70vh] object-contain rounded-2xl">
+        <div class="p-2 space-y-1 text-center">
+            <h4 id="modalTitle" class="text-lg font-bold text-white"></h4>
+            <p id="modalCaption" class="text-sm text-slate-300"></p>
+        </div>
+    </div>
+</div>
+
+<script>
+    let startDate = localStorage.getItem('loveStartDate')
+        ? new Date(localStorage.getItem('loveStartDate'))
+        : new Date('2024-09-05T00:00:00');
+
+    const tags = ["Todas", "Momentos Especiais", "Viagens", "Fotos Bonitas", "Risadas & Micos", "Marcos"];
+    let activeTag = "Todas";
+
+    const memoryCards = [
+        {
+            id: 1,
+            title: "Nosso Primeiro Encontro",
+            date: "12 de Outubro",
+            category: "Momentos Especiais",
+            image: "12Outubro.png",
+            caption: "O dia em que meu coração soube que você seria a pessoa mais importante da minha vida.",
+            likes: 12
+        },
+        {
+            id: 2,
+            title: "Um Natal Inesquecível",
+            date: "24 de Dezembro",
+            category: "Momentos Especiais",
+            image: "24Dezembro.png",
+            caption: "Churrasco, piscina, músicas e você ao meu lado. Nada no mundo supera isso.",
+            likes: 24
+        },
+        {
+            id: 3,
+            title: "Seu Sorriso Mais Lindo",
+            date: "22 de Agosto",
+            category: "Fotos Bonitas",
+            image: "22Agosto.png",
+            caption: "Pedir pra você fazer uma pose sorrindo rendeu uma das minhas maiores relíquias!",
+            likes: 19
+        },
+        {
+            id: 4,
+            title: "Dia de Mico e Muita Risada",
+            date: "20 de Junho",
+            category: "Risadas & Micos",
+            image: "20Junho.png",
+            caption: "A gente tentando tirar aquela foto perfeita e caindo na gargalhada.",
+            likes: 31
+        },
+        {
+            id: 5,
+            title: "Nosso Primeiro Ano Juntos",
+            date: "05 de Setembro",
+            category: "Marcos",
+            image: "AnoJuntos.png",
+            caption: "Um ano de muito amor, aprendizado e a certeza de que quero passar o resto da vida com você.",
+            likes: 45
+        }
+    ];
+
+    const loveReasons = [
+        "Amo o jeito como seu olho brilha quando você fala de algo que gosta bastante.",
+        "Amo o seu abraço quentinho que faz qualquer problema do mundo sumir na hora.",
+        "Amo quando você ri até a barriga doer das minhas piadas bobas.",
+        "Amo a sua bondade e a forma carinhosa como você cuida das pessoas ao seu redor.",
+        "Amo quando você segura minha mão bem forte sem dizer nada.",
+        "Amo a nossa sintonia e como a gente se entende só com um olhar.",
+        "Amo como você me incentiva a ser uma pessoa melhor a cada dia.",
+        "Amo simplesmente o fato de você existir e ter entrado na minha vida!"
+    ];
+
+    function updateCounter() {
+        const now = new Date();
+        const diff = now - startDate;
+
+        if (diff < 0) {
+            document.getElementById('days').innerText = '00';
+            document.getElementById('hours').innerText = '00';
+            document.getElementById('minutes').innerText = '00';
+            document.getElementById('seconds').innerText = '00';
+            return;
+        }
+
+        const days = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        const minutes = Math.floor((diff / 1000 / 60) % 60);
+        const seconds = Math.floor((diff / 1000) % 60);
+
+        document.getElementById('days').innerText = String(days).padStart(2, '0');
+        document.getElementById('hours').innerText = String(hours).padStart(2, '0');
+        document.getElementById('minutes').innerText = String(minutes).padStart(2, '0');
+        document.getElementById('seconds').innerText = String(seconds).padStart(2, '0');
+    }
+
+    setInterval(updateCounter, 1000);
+    updateCounter();
+
+    function renderTags() {
+        const container = document.getElementById('tagsContainer');
+        container.innerHTML = tags.map(tag => `
+            <button onclick="filterTag('${tag}')"
+                    class="px-4 py-2 rounded-full text-xs sm:text-sm font-medium transition-all duration-300 ${
+            tag === activeTag
+                ? 'bg-gradient-to-r from-rose-500 to-pink-500 text-white shadow-lg shadow-rose-500/30 scale-105'
+                : 'glass-card text-slate-300 hover:text-white hover:bg-white/10'
+        }">
+                ${tag}
+            </button>
+        `).join('');
+    }
+
+    function filterTag(tag) {
+        activeTag = tag;
+        renderTags();
+        renderCards();
+    }
+
+    function renderCards() {
+        const grid = document.getElementById('cardsGrid');
+        const filtered = activeTag === "Todas" ? memoryCards : memoryCards.filter(c => c.category === activeTag);
+
+        grid.innerHTML = filtered.map(card => `
+            <div class="glass-card rounded-3xl overflow-hidden border border-white/10 glass-card-hover flex flex-col group">
+                <div class="relative overflow-hidden h-52 sm:h-60 cursor-pointer" onclick="openImageModal('${card.image}', '${card.title}', '${card.caption}')">
+                    <img src="${card.image}" alt="${card.title}" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110">
+                    <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-60"></div>
+                    <span class="absolute top-3 left-3 bg-rose-500/80 backdrop-blur-md text-white text-[10px] font-semibold uppercase tracking-wider px-3 py-1 rounded-full border border-rose-300/30">
+                        ${card.category}
+                    </span>
+                    <span class="absolute bottom-3 right-3 text-xs text-rose-200 font-medium">
+                        <i class="fa-solid fa-calendar text-[10px] mr-1"></i>${card.date}
+                    </span>
+                </div>
+
+                <div class="p-5 flex flex-col justify-between flex-grow space-y-4">
+                    <div class="space-y-2">
+                        <h3 class="text-lg font-bold text-white group-hover:text-rose-300 transition">${card.title}</h3>
+                        <p class="text-xs text-slate-300 leading-relaxed">${card.caption}</p>
+                    </div>
+
+                    <div class="flex justify-between items-center pt-3 border-t border-white/10">
+                        <button onclick="toggleLike(${card.id})" class="flex items-center gap-1.5 text-xs text-rose-300 hover:text-rose-100 transition group/btn">
+                            <i id="likeIcon-${card.id}" class="fa-regular fa-heart text-base text-rose-400 group-hover/btn:scale-125 transition-transform"></i>
+                            <span id="likeCount-${card.id}">${card.likes}</span> curtidas
+                        </button>
+                        <button onclick="openImageModal('${card.image}', '${card.title}', '${card.caption}')" class="text-xs text-slate-400 hover:text-white">
+                            Expandir <i class="fa-solid fa-expand text-[10px] ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function toggleLike(id) {
+        const card = memoryCards.find(c => c.id === id);
+        const icon = document.getElementById(`likeIcon-${id}`);
+        const count = document.getElementById(`likeCount-${id}`);
+
+        if (icon.classList.contains('fa-regular')) {
+            icon.classList.remove('fa-regular');
+            icon.classList.add('fa-solid', 'text-rose-500', 'animate-bounce');
+            card.likes++;
+        } else {
+            icon.classList.remove('fa-solid', 'text-rose-500', 'animate-bounce');
+            icon.classList.add('fa-regular');
+            card.likes--;
+        }
+        count.innerText = card.likes;
+    }
+
+    function generateNewReason() {
+        const card = document.getElementById('reasonCard');
+        const text = document.getElementById('reasonText');
+
+        card.style.opacity = '0';
+        card.style.transform = 'scale(0.95)';
+
+        setTimeout(() => {
+            const randomIndex = Math.floor(Math.random() * loveReasons.length);
+            text.innerText = `"${loveReasons[randomIndex]}"`;
+            card.style.opacity = '1';
+            card.style.transform = 'scale(1)';
+        }, 300);
+    }
+
+    function togglePlayMusic() {
+        const audio = document.getElementById('bg-music');
+        const playIcon = document.getElementById('playIcon');
+
+        if (audio.paused) {
+            audio.play().catch(() => {});
+            playIcon.className = 'fa-solid fa-pause text-sm';
+        } else {
+            audio.pause();
+            playIcon.className = 'fa-solid fa-play text-sm ml-0.5';
+        }
+    }
+
+    function openDateModal() {
+        const modal = document.getElementById('dateModal');
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeDateModal() {
+        const modal = document.getElementById('dateModal');
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    function saveStartDate() {
+        const val = document.getElementById('startDateInput').value;
+        if (val) {
+            startDate = new Date(val);
+            localStorage.setItem('loveStartDate', val);
+            updateCounter();
+            closeDateModal();
+        }
+    }
+
+    function openImageModal(src, title, caption) {
+        const modal = document.getElementById('imageModal');
+        document.getElementById('modalImg').src = src;
+        document.getElementById('modalTitle').innerText = title;
+        document.getElementById('modalCaption').innerText = caption;
+        modal.classList.remove('hidden');
+        setTimeout(() => modal.classList.remove('opacity-0'), 10);
+    }
+
+    function closeImageModal() {
+        const modal = document.getElementById('imageModal');
+        modal.classList.add('opacity-0');
+        setTimeout(() => modal.classList.add('hidden'), 300);
+    }
+
+    // Canvas Corações Flutuantes
+    const canvas = document.getElementById('heartCanvas');
+    const ctx = canvas.getContext('2d');
+    let width = canvas.width = window.innerWidth;
+    let height = canvas.height = window.innerHeight;
+
+    window.addEventListener('resize', () => {
+        width = canvas.width = window.innerWidth;
+        height = canvas.height = window.innerHeight;
+    });
+
+    class Heart {
+        constructor() {
+            this.reset();
+        }
+        reset() {
+            this.x = Math.random() * width;
+            this.y = height + 20;
+            this.size = Math.random() * 12 + 6;
+            this.speed = Math.random() * 1.5 + 0.5;
+            this.opacity = Math.random() * 0.5 + 0.2;
+            this.swing = Math.random() * 0.02;
+            this.swingAngle = Math.random() * Math.PI * 2;
+        }
+        update() {
+            this.y -= this.speed;
+            this.swingAngle += this.swing;
+            this.x += Math.sin(this.swingAngle) * 0.5;
+            if (this.y < -20) this.reset();
+        }
+        draw() {
+            ctx.save();
+            ctx.globalAlpha = this.opacity;
+            ctx.fillStyle = '#f43f5e';
+            ctx.beginPath();
+            const topCurveHeight = this.size * 0.3;
+            ctx.moveTo(this.x, this.y + topCurveHeight);
+            ctx.bezierCurveTo(this.x, this.y, this.x - this.size / 2, this.y, this.x - this.size / 2, this.y + topCurveHeight);
+            ctx.bezierCurveTo(this.x - this.size / 2, this.y + (this.size + topCurveHeight) / 2, this.x, this.y + this.size, this.x, this.y + this.size);
+            ctx.bezierCurveTo(this.x, this.y + (this.size + topCurveHeight) / 2, this.x + this.size / 2, this.y + topCurveHeight, this.x + this.size / 2, this.y + topCurveHeight);
+            ctx.bezierCurveTo(this.x + this.size / 2, this.y, this.x, this.y, this.x, this.y + topCurveHeight);
+            ctx.closePath();
+            ctx.fill();
+            ctx.restore();
+        }
+    }
+
+    const hearts = Array.from({ length: 25 }, () => new Heart());
+    function animate() {
+        ctx.clearRect(0, 0, width, height);
+        hearts.forEach(h => { h.update(); h.draw(); });
+        requestAnimationFrame(animate);
+    }
+
+    renderTags();
+    renderCards();
+    animate();
+</script>
+</body>
+</html>
